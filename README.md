@@ -1,16 +1,6 @@
-# zalio_app
+# zalio_productivity_app
 
-A new Flutter project.
+## Screenshots
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<img width="322" height="699" alt="Simulator Screenshot - iPhone 16 Plus - 2025-10-17 at 02 13 43" src="https://github.com/user-attachments/assets/357806ac-4528-4eea-ba78-60d47ddc9509" />
+<img width="322" height="699" alt="Simulator Screenshot - iPhone 16 Plus - 2025-10-17 at 02 14 38" src="https://github.com/user-attachments/assets/d1020e48-562b-4657-8631-8fc3d78908d9" />
