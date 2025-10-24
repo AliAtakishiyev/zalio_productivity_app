@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:zalio_app/screens/todo_screen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:zalio_app/data/pomodoro_settings.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class PomodoroScreen extends StatefulWidget {
   const PomodoroScreen({super.key});
@@ -11,6 +14,96 @@ class PomodoroScreen extends StatefulWidget {
 
 class _PomodoroScreenState extends State<PomodoroScreen> {
   int bottomMenuIndex = 1;
+
+  Timer? _timer;
+  int _remainingSeconds = 0;
+  bool isExpanded = false;
+  bool _isRunning = false;
+  bool studyMode = true;
+  bool isPaused = true;
+
+  final TextEditingController _studyMinuteController = TextEditingController(
+    text: '25',
+  );
+  final TextEditingController _breakMinuteController = TextEditingController(
+    text: '5',
+  );
+
+  PomodoroSettings settings = PomodoroSettings(
+    studyMinutes: 25,
+    breakMinutes: 5,
+    studyMinutesRightNow: 25,
+    breakMinutesRightNow: 5,
+    sessionsToday: 0,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _resetTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _resetTimer() {
+    setState(() {
+      _remainingSeconds = studyMode
+          ? settings.studyMinutes * 60
+          : settings.breakMinutes * 60;
+      _isRunning = false;
+    });
+    _timer?.cancel();
+  }
+
+  void _startTimer() {
+    if (_isRunning) return;
+
+    setState(() {
+      _isRunning = true;
+    });
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_remainingSeconds > 0) {
+          _remainingSeconds--;
+        } else {
+          _timer?.cancel();
+          _isRunning = false;
+
+          if (studyMode) {
+            settings.sessionsToday++;
+          }
+          // Timer finished - switch mode
+          studyMode = !studyMode;
+
+          _resetTimer();
+          isPaused = !isPaused;
+        }
+      });
+    });
+  }
+
+  void _pauseTimer() {
+    setState(() {
+      _isRunning = false;
+    });
+    _timer?.cancel();
+  }
+
+  String formatSecond() {
+    int seconds = _remainingSeconds % 60;
+
+    return seconds.toString().padLeft(2, '0');
+  }
+
+  int returnMinute() {
+    int minutes = _remainingSeconds ~/ 60;
+    return minutes;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,37 +153,171 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
           Column(
             children: [
               SizedBox(height: 24),
-              SizedBox(
-                width: screenWidth * 0.98,
-                height: screenHeight * 0.08,
-                child: Card(
-                  color: Color(0xff0F0E0E),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.all(Radius.circular(10)),
-                    side: const BorderSide(color: Color(0xff1E1E1F)),
-                  ),
+              AnimatedSize(
+                duration: Duration(milliseconds: 300),
+                curve: Curves.easeOut,
+                // width: screenWidth * 0.98,
+                // height: isExpanded ? screenHeight * 0.2 : screenHeight * 0.08,
+                child: Container(
+                  width: screenWidth * 0.98,
+                  child: Card(
+                    color: Color(0xff0F0E0E),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.all(
+                        Radius.circular(10),
+                      ),
+                      side: const BorderSide(color: Color(0xff1E1E1F)),
+                    ),
 
-                  child: InkWell(
-                    splashColor: Colors.transparent, // 💧 remove ripple
-                    highlightColor: Colors.transparent, // 💡 remove tap glow
-                    onTap: () {
-                      setState(() {});
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 15),
-                      child: Row(
-                        children: [
-                          Icon(Icons.settings, color: Colors.white),
-                          SizedBox(width: 12),
-                          Text(
-                            "Timer Settings",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                    child: InkWell(
+                      splashColor: Colors.transparent, // 💧 remove ripple
+                      highlightColor: Colors.transparent, // 💡 remove tap glow
+                      onTap: () {
+                        setState(() {
+                          isExpanded = !isExpanded;
+                        });
+                      },
+
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 15,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: isExpanded
+                              ? CrossAxisAlignment.start
+                              : CrossAxisAlignment.center,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.settings, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  "Timer Settings",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            SizedBox(height: 12),
+                            if (isExpanded) ...[
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Focus Duration (minutes)",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+
+                                  SizedBox(height: 12),
+                                  TextField(
+                                    controller: _studyMinuteController,
+                                    keyboardType: TextInputType.number,
+                                    style: TextStyle(color: Colors.white),
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(
+                                          color: Color(0xff7D3BEC),
+                                          width: 3,
+                                        ),
+                                      ),
+                                      fillColor: Colors.white,
+                                    ),
+
+                                    onChanged: (value) {
+                                      setState(() {
+                                        if (value.isEmpty) {
+                                          //studyMtext = '25';
+                                          settings.studyMinutes = 25;
+                                        } else {
+                                          int valueINT = int.parse(value);
+                                          if (valueINT <= 999) {
+                                            settings.studyMinutes = valueINT;
+                                          } else {
+                                            Fluttertoast.showToast(
+                                              msg:
+                                                  "Times minute can't be more than 999",
+                                            );
+                                          }
+                                        }
+
+                                        if (studyMode && !_isRunning) {
+                                          _resetTimer();
+                                        }
+                                      });
+                                    },
+                                  ),
+                                  SizedBox(height: 12),
+                                  Text(
+                                    "Break Duration (minutes)",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+
+                                  SizedBox(height: 12),
+                                  TextField(
+                                    controller: _breakMinuteController,
+                                    keyboardType: TextInputType.number,
+                                    style: TextStyle(color: Colors.white),
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: BorderSide(
+                                          color: Color(0xff7D3BEC),
+                                          width: 3,
+                                        ),
+                                      ),
+                                      fillColor: Colors.white,
+                                    ),
+
+                                    onChanged: (value) {
+                                      setState(() {
+                                        if (value.isEmpty) {
+                                          //studyMtext = '25';
+                                          settings.breakMinutes = 5;
+                                        } else {
+                                          int valueINT = int.parse(value);
+                                          if (valueINT <= 999) {
+                                            settings.breakMinutes = valueINT;
+                                          } else {
+                                            Fluttertoast.showToast(
+                                              msg:
+                                                  "Times minute can't be more than 999",
+                                            );
+                                          }
+                                        }
+
+                                        if (!studyMode && !_isRunning) {
+                                          _resetTimer();
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -122,7 +349,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                           ),
 
                           Text(
-                            "0",
+                            "${settings.sessionsToday}",
                             style: TextStyle(
                               fontSize: 56,
                               fontWeight: FontWeight.bold,
@@ -166,13 +393,15 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
-                                Icons.timer,
+                                studyMode ? Icons.timer : Icons.coffee,
                                 size: 30,
-                                color: Color(0xff7D3BEC),
+                                color: studyMode
+                                    ? Color(0xff7D3BEC) //0xff7D3BEC
+                                    : Color(0xff17A04A),
                               ),
                               SizedBox(width: 8),
                               Text(
-                                "FOCUS TIME",
+                                studyMode ? "FOCUS TIME" : "BREAK TIME",
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
@@ -183,20 +412,29 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                           ),
 
                           SizedBox(height: 24),
-
-                          Text(
-                            "25:00",
-                            style: TextStyle(
-                              fontSize: 110,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
+                          //timer
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              //studyMode?  "${returnMinute()}:${returnSecond()}" : "${settings.studyMinutes}:00" ,
+                              "${returnMinute()}:${formatSecond()}",
+                              style: TextStyle(
+                                fontSize: 110,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
 
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8),
                             child: LinearProgressIndicator(
-                              value: 0.0,
+                              value:
+                                  1 -
+                                  (_remainingSeconds /
+                                      (studyMode
+                                          ? settings.studyMinutes * 60
+                                          : settings.breakMinutes * 60)),
                               minHeight: 16,
                               backgroundColor: Color(0xff1E1E1F),
                               color: Color(0xff7D3BEC),
@@ -212,7 +450,9 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                                 style: TextStyle(color: Colors.white),
                               ),
                               Text(
-                                "${25} min focus",
+                                studyMode
+                                    ? "${settings.studyMinutes} min focus"
+                                    : "${settings.breakMinutes} min break",
                                 style: TextStyle(color: Colors.white),
                               ),
                             ],
@@ -222,13 +462,30 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               TextButton.icon(
-                                onPressed: () {},
+                                onPressed: () {
+                                  setState(() {
+                                    isPaused = !isPaused;
+
+                                    if (isPaused == true) {
+                                      _pauseTimer();
+                                    } else {
+                                      _startTimer();
+                                    }
+                                    print("started");
+                                  });
+                                },
                                 label: Text(
-                                  "Start",
-                                  style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 16),
+                                  isPaused ? "Start" : "Pause",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
                                 icon: Icon(
-                                  Icons.play_arrow_outlined,
+                                  isPaused
+                                      ? Icons.play_arrow_outlined
+                                      : Icons.pause_outlined,
                                   color: Colors.white,
                                   size: 26,
                                 ),
@@ -242,7 +499,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                                   ),
                                 ),
                               ),
-
+                              //Reset
                               IconButton(
                                 style: IconButton.styleFrom(
                                   minimumSize: Size(100, 75),
@@ -253,29 +510,53 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                                     ), // rounded corners
                                   ),
                                 ),
-                                onPressed: () {},
-                                icon: Icon(Icons.restore,color: Colors.white,),
+                                onPressed: () {
+                                  setState(() {
+                                    isPaused = true;
+                                    _resetTimer();
+                                  });
+                                },
+                                icon: Icon(Icons.restore, color: Colors.white),
                               ),
                             ],
                           ),
                           SizedBox(height: 32),
                           ElevatedButton(
+                            
                             style: TextButton.styleFrom(
                               minimumSize: Size(340, 50),
-                              backgroundColor: Color(0xff0B0B0A),
+                              backgroundColor: _isRunning? Color(0xff0D0D0D) : Color(0xff0B0B0A),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
                                   16,
                                 ), // rounded corners
                               ),
 
-                              side: BorderSide(width: 0.2, color: Colors.white),
+                              side: BorderSide(width: 0.5, color: _isRunning? Color(0xff1E1E1F) : Colors.white),
+                              
+                              
                             ),
-                            onPressed: () {},
+                            onPressed: _isRunning? () {
+                              setState(() {
+                              });
+                            } :
+
+                            () {
+                              setState(() {
+                                studyMode = !studyMode;
+                                _resetTimer();
+                              });
+                            }
+                            
+                            
+                            
+                            ,
                             child: Text(
-                              "Switch to Break Mode",
+                              studyMode
+                                  ? "Switch to Break Mode"
+                                  : "Switch to Study Mode",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: _isRunning? Color(0xff848584) : Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -287,7 +568,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 24,),
+              SizedBox(height: 24),
 
               SizedBox(
                 width: screenWidth * 0.98,
@@ -298,9 +579,12 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                     borderRadius: BorderRadiusGeometry.all(Radius.circular(10)),
                     side: const BorderSide(color: Color(0xff1E1E1F)),
                   ),
-              
+
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 30),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 30,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -309,43 +593,41 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                           style: TextStyle(
                             fontSize: 18,
                             color: Colors.white,
-                            fontWeight: FontWeight.bold
+                            fontWeight: FontWeight.bold,
                           ),
-                          ),
-              
-              
-                          Text(
+                        ),
+
+                        Text(
                           "• Focus for ${25} minutes on a single task",
                           style: TextStyle(
                             fontSize: 16,
                             color: Color(0xff979797),
                           ),
-                          ),
-              
-                          Text(
+                        ),
+
+                        Text(
                           "• Take a ${5}-minute break",
                           style: TextStyle(
                             fontSize: 16,
                             color: Color(0xff979797),
                           ),
-                          ),
-              
-                          Text(
+                        ),
+
+                        Text(
                           "• Repeat to boost productivity",
                           style: TextStyle(
                             fontSize: 16,
                             color: Color(0xff979797),
                           ),
-                          ),
-              
-                          Text(
+                        ),
+
+                        Text(
                           "• After 4 sessions, take a longer break",
                           style: TextStyle(
                             fontSize: 16,
                             color: Color(0xff979797),
                           ),
-                          ),
-                          
+                        ),
                       ],
                     ),
                   ),
