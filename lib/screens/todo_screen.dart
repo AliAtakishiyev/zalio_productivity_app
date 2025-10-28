@@ -21,6 +21,8 @@ class _TodoScreenState extends State<TodoScreen> {
   Set<String> selected = {'All'};
   int bottomMenuIndex = 0;
 
+  int dotCount = 0;
+
   String selectedCategory = 'Study';
 
   final TextEditingController _dateController = TextEditingController();
@@ -439,40 +441,57 @@ class _TodoScreenState extends State<TodoScreen> {
                                             ],
 
                                             onChanged: (value) {
+                                              if (value.contains("."))
+                                                dotCount++;
+
                                               if (value.length == 10) {
-                                                try {
-                                                  final parts = value.split(
-                                                    ".",
-                                                  );
-                                                  if (parts.length == 3) {
-                                                    int day = int.parse(
-                                                      parts[0],
+                                                if (dotCount == 2) {
+                                                  try {
+                                                    final parts = value.split(
+                                                      ".",
                                                     );
-                                                    int month = int.parse(
-                                                      parts[1],
-                                                    );
-                                                    int year = int.parse(
-                                                      parts[2],
-                                                    );
-
-                                                    DateTime date = DateTime(
-                                                      year,
-                                                      month,
-                                                      day,
-                                                    );
-
-                                                    if (date.day != day ||
-                                                        date.month != month ||
-                                                        date.year != year) {
-                                                      Fluttertoast.showToast(
-                                                        msg:
-                                                            "Invalid type of date",
+                                                    if (parts.length == 3) {
+                                                      int day = int.parse(
+                                                        parts[0],
                                                       );
-                                                      _dateController.clear();
+                                                      int month = int.parse(
+                                                        parts[1],
+                                                      );
+                                                      int year = int.parse(
+                                                        parts[2],
+                                                      );
+
+                                                      DateTime date = DateTime(
+                                                        year,
+                                                        month,
+                                                        day,
+                                                      );
+
+                                                      if (date.day != day ||
+                                                          date.month != month ||
+                                                          date.year != year) {
+                                                        Fluttertoast.showToast(
+                                                          msg:
+                                                              "Invalid type of date",
+                                                        );
+                                                        _dateController.clear();
+                                                      }
                                                     }
+                                                  } catch (e) {
+                                                    // Fluttertoast.showToast(
+                                                    //   msg:
+                                                    //       "Invalid type of date",
+                                                    // );
+                                                    // _dateController.clear();
                                                   }
-                                                } catch (e) {}
+                                                }
+                                                else {
+                                                Fluttertoast.showToast(
+                                                  msg: "Invalid type of date",
+                                                );
+                                                _dateController.clear();
                                               }
+                                              } 
                                             },
 
                                             decoration: InputDecoration(
@@ -715,10 +734,16 @@ class _TodoScreenState extends State<TodoScreen> {
           Column(
             children: tasks.map((task) {
               return Card(
-                color: Color(0xff0F0E0E),
+                color: task.isChecked
+                    ? Color(0xff0D0D0D)
+                    : Color(0xff0F0E0E), //0xff0D0D0D
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
-                  side: BorderSide(color: Color(0xff1E1E1F)),
+                  side: BorderSide(
+                    color: task.isChecked
+                        ? Color(0xff161617)
+                        : Color(0xff1E1E1F),
+                  ), //true: 161617 false:0xff1E1E1F
                 ),
                 margin: EdgeInsets.only(bottom: 12),
                 child: Padding(
@@ -759,9 +784,16 @@ class _TodoScreenState extends State<TodoScreen> {
                                 Text(
                                   task.title,
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: task.isChecked
+                                        ? Color(0xff606161)
+                                        : Colors.white,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20,
+
+                                    decoration: task.isChecked
+                                        ? TextDecoration.lineThrough
+                                        : TextDecoration.none,
+                                    decorationColor: Color(0xff606161),
                                   ),
                                 ),
 
@@ -770,7 +802,9 @@ class _TodoScreenState extends State<TodoScreen> {
                                     Text(
                                       task.category,
                                       style: TextStyle(
-                                        color: Color(0xffC185FC),
+                                        color: task.isChecked
+                                            ? Color(0xff77539B)
+                                            : Color(0xffC185FC),
                                         fontSize: 16,
                                       ),
                                     ),
@@ -780,7 +814,9 @@ class _TodoScreenState extends State<TodoScreen> {
                                         if (task.date.isNotEmpty) ...[
                                           Icon(
                                             Icons.calendar_month_outlined,
-                                            color: Color(0xff999999),
+                                            color: task.isChecked
+                                                ? Color(0xff606161)
+                                                : Color(0xff999999),
                                             size: 16,
                                           ),
                                         ],
@@ -789,7 +825,9 @@ class _TodoScreenState extends State<TodoScreen> {
                                         Text(
                                           task.date,
                                           style: TextStyle(
-                                            color: Color(0xff999999),
+                                            color: task.isChecked
+                                                ? Color(0xff606161)
+                                                : Color(0xff999999),
                                             fontSize: 16,
                                           ),
                                         ),
@@ -802,6 +840,9 @@ class _TodoScreenState extends State<TodoScreen> {
 
                             IconButton(
                               alignment: Alignment.centerLeft,
+                              color: task.isChecked
+                                  ? Color(0xff606161)
+                                  : Color(0xff999999),
                               onPressed: () async {
                                 await _taskRepository.deleteTask(task.id);
                                 setState(() {
