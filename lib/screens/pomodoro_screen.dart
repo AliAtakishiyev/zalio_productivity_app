@@ -184,12 +184,9 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                           vertical: 15,
                         ),
                         child: Column(
-                          crossAxisAlignment: isExpanded
-                              ? CrossAxisAlignment.start
-                              : CrossAxisAlignment.center,
                           children: [
                             Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Icon(Icons.settings, color: Colors.white),
                                 SizedBox(width: 12),
@@ -203,8 +200,9 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 12),
                             if (isExpanded) ...[
+                              SizedBox(height: 12),
+
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -326,54 +324,61 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
               SizedBox(height: 24),
               SizedBox(
                 width: screenWidth * 0.98,
-                height: screenHeight * 0.22,
-                child: Card(
-                  color: Color(0xff0F0E0E),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.all(Radius.circular(10)),
-                    side: const BorderSide(color: Color(0xff1E1E1F)),
-                  ),
+                //height: screenHeight * 0.22,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Card(
+                      color: Color(0xff0F0E0E),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(10),
+                        ),
+                        side: const BorderSide(color: Color(0xff1E1E1F)),
+                      ),
 
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 30),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Text(
-                            "SESSIONS TODAY",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff999999),
-                            ),
-                          ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 30),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Text(
+                                "SESSIONS TODAY",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xff999999),
+                                ),
+                              ),
 
-                          Text(
-                            "${settings.sessionsToday}",
-                            style: TextStyle(
-                              fontSize: 56,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff7D3BEC),
-                            ),
+                              Text(
+                                "${settings.sessionsToday}",
+                                style: TextStyle(
+                                  fontSize: 56,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xff7D3BEC),
+                                ),
+                              ),
+                              Text(
+                                "Start your first session!",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xff999999),
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            "Start your first session!",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xff999999),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
               SizedBox(height: 24),
               SizedBox(
                 width: screenWidth * 0.98,
-                height: screenHeight * 0.57,
+                //height: screenHeight * 0.57,
                 child: Card(
                   color: Color(0xff0F0E0E),
                   shape: RoundedRectangleBorder(
@@ -388,6 +393,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                     ),
                     child: Center(
                       child: Column(
+                        mainAxisSize: MainAxisSize.max,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -461,102 +467,114 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              TextButton.icon(
-                                onPressed: () {
-                                  setState(() {
-                                    isPaused = !isPaused;
+                              Flexible(
+                                flex: 4,
+                                child: TextButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      isPaused = !isPaused;
 
-                                    if (isPaused == true) {
-                                      _pauseTimer();
-                                    } else {
-                                      _startTimer();
-                                    }
-                                    print("started");
-                                  });
-                                },
-                                label: Text(
-                                  isPaused ? "Start" : "Pause",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                      if (isPaused == true) {
+                                        _pauseTimer();
+                                      } else {
+                                        _startTimer();
+                                      }
+                                      print("started");
+                                    });
+                                  },
+                                  label: Text(
+                                    isPaused ? "Start" : "Pause",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
                                   ),
-                                ),
-                                icon: Icon(
-                                  isPaused
-                                      ? Icons.play_arrow_outlined
-                                      : Icons.pause_outlined,
-                                  color: Colors.white,
-                                  size: 26,
-                                ),
-                                style: TextButton.styleFrom(
-                                  minimumSize: Size(240, 75),
-                                  backgroundColor: Color(0xff7D3BEC),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      16,
-                                    ), // rounded corners
+                                  icon: Icon(
+                                    isPaused
+                                        ? Icons.play_arrow_outlined
+                                        : Icons.pause_outlined,
+                                    color: Colors.white,
+                                    size: 26,
+                                  ),
+                                  style: TextButton.styleFrom(
+                                    minimumSize: Size(240, 75),
+                                    backgroundColor: Color(0xff7D3BEC),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        16,
+                                      ), // rounded corners
+                                    ),
                                   ),
                                 ),
                               ),
+
+                              SizedBox(width: 12),
                               //Reset
-                              IconButton(
-                                style: IconButton.styleFrom(
-                                  minimumSize: Size(100, 75),
-                                  backgroundColor: Color(0xff1E1E1F),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      16,
-                                    ), // rounded corners
+                              Flexible(
+                                flex: 2,
+                                child: IconButton(
+                                  style: IconButton.styleFrom(
+                                    minimumSize: Size(100, 75),
+                                    backgroundColor: Color(0xff1E1E1F),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        16,
+                                      ), // rounded corners
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      isPaused = true;
+                                      _resetTimer();
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.restore,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                onPressed: () {
-                                  setState(() {
-                                    isPaused = true;
-                                    _resetTimer();
-                                  });
-                                },
-                                icon: Icon(Icons.restore, color: Colors.white),
                               ),
                             ],
                           ),
                           SizedBox(height: 32),
                           ElevatedButton(
-                            
                             style: TextButton.styleFrom(
                               minimumSize: Size(340, 50),
-                              backgroundColor: _isRunning? Color(0xff0D0D0D) : Color(0xff0B0B0A),
+                              backgroundColor: _isRunning
+                                  ? Color(0xff0D0D0D)
+                                  : Color(0xff0B0B0A),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(
                                   16,
                                 ), // rounded corners
                               ),
 
-                              side: BorderSide(width: 0.5, color: _isRunning? Color(0xff1E1E1F) : Colors.white),
-                              
-                              
+                              side: BorderSide(
+                                width: 0.5,
+                                color: _isRunning
+                                    ? Color(0xff1E1E1F)
+                                    : Colors.white,
+                              ),
                             ),
-                            onPressed: _isRunning? () {
-                              setState(() {
-                              });
-                            } :
-
-                            () {
-                              setState(() {
-                                studyMode = !studyMode;
-                                _resetTimer();
-                              });
-                            }
-                            
-                            
-                            
-                            ,
+                            onPressed: _isRunning
+                                ? () {
+                                    setState(() {});
+                                  }
+                                : () {
+                                    setState(() {
+                                      studyMode = !studyMode;
+                                      _resetTimer();
+                                    });
+                                  },
                             child: Text(
                               studyMode
                                   ? "Switch to Break Mode"
                                   : "Switch to Study Mode",
                               style: TextStyle(
-                                color: _isRunning? Color(0xff848584) : Colors.white,
+                                color: _isRunning
+                                    ? Color(0xff848584)
+                                    : Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -572,65 +590,72 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
 
               SizedBox(
                 width: screenWidth * 0.98,
-                height: screenHeight * 0.2,
-                child: Card(
-                  color: Color(0xff0F0E0E),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.all(Radius.circular(10)),
-                    side: const BorderSide(color: Color(0xff1E1E1F)),
-                  ),
+                //height: screenHeight * 0.2,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Card(
+                      color: Color(0xff0F0E0E),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.all(
+                          Radius.circular(10),
+                        ),
+                        side: const BorderSide(color: Color(0xff1E1E1F)),
+                      ),
 
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 30,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 30,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "How it works",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+
+                            Text(
+                              "• Focus for ${25} minutes on a single task",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xff979797),
+                              ),
+                            ),
+
+                            Text(
+                              "• Take a ${5}-minute break",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xff979797),
+                              ),
+                            ),
+
+                            Text(
+                              "• Repeat to boost productivity",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xff979797),
+                              ),
+                            ),
+
+                            Text(
+                              "• After 4 sessions, take a longer break",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xff979797),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "How it works",
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        Text(
-                          "• Focus for ${25} minutes on a single task",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Color(0xff979797),
-                          ),
-                        ),
-
-                        Text(
-                          "• Take a ${5}-minute break",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Color(0xff979797),
-                          ),
-                        ),
-
-                        Text(
-                          "• Repeat to boost productivity",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Color(0xff979797),
-                          ),
-                        ),
-
-                        Text(
-                          "• After 4 sessions, take a longer break",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Color(0xff979797),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
               ),
             ],
