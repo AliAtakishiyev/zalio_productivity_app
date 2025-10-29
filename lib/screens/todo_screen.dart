@@ -589,7 +589,7 @@ class _TodoScreenState extends State<TodoScreen> {
                                                     if (_dateController
                                                             .text
                                                             .length ==
-                                                        10) {
+                                                        10 || _dateController.text.isEmpty) {
                                                       if (selected.contains(
                                                         "All",
                                                       )) {
