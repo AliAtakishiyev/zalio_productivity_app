@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:zalio_app/data/task_repository.dart';
 import 'package:zalio_app/screens/todo_screen.dart';
 

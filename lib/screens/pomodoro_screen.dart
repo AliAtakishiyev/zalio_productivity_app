@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:zalio_app/screens/todo_screen.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:zalio_app/data/pomodoro_settings.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:zalio_app/widgets/bottom_nav_bar.dart';
 
 class PomodoroScreen extends StatefulWidget {
   const PomodoroScreen({super.key});
@@ -108,7 +107,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    //double screenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Color(0xff0B0B0A),
       appBar: AppBar(
@@ -663,51 +662,7 @@ class _PomodoroScreenState extends State<PomodoroScreen> {
         ],
       ),
 
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xff141515),
-        currentIndex: bottomMenuIndex,
-        selectedItemColor: const Color(0xffFAFBFB),
-        unselectedItemColor: const Color(0xffFAFBFB),
-        selectedFontSize: 12,
-        unselectedFontSize: 12,
-        onTap: (index) {
-          setState(() {
-            bottomMenuIndex = index;
-            if (bottomMenuIndex == 0) {
-              Navigator.pushReplacement(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation1, animation2) =>
-                      TodoScreen(),
-                  transitionDuration: Duration.zero, // 🧠 No animation
-                  reverseTransitionDuration: Duration.zero,
-                ),
-              );
-            }
-          });
-          //widget.bottomMenuIndex(index); // notify parent screen
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: bottomMenuIndex == 0
-                ? SvgPicture.asset(
-                    'lib/assets/icons/tasks-selected.svg',
-                    width: 30,
-                  )
-                : SvgPicture.asset('lib/assets/icons/tasks.svg', width: 30),
-            label: "Tasks",
-          ),
-          BottomNavigationBarItem(
-            icon: bottomMenuIndex == 1
-                ? SvgPicture.asset(
-                    'lib/assets/icons/pomodoro-selected.svg',
-                    width: 30,
-                  )
-                : SvgPicture.asset('lib/assets/icons/pomodoro.svg', width: 30),
-            label: "PomodoroTimer",
-          ),
-        ],
-      ),
+     bottomNavigationBar: BottomNavBar(currentIndex: 1,),
     );
   }
 }
