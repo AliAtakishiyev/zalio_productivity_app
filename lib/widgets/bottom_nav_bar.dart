@@ -64,19 +64,19 @@ void initState() {
           BottomNavigationBarItem(
             icon: bottomMenuIndex == 0
                 ? SvgPicture.asset(
-                    'lib/assets/icons/tasks-selected.svg',
+                    'assets/icons/tasks-selected.svg',
                     width: 30,
                   )
-                : SvgPicture.asset('lib/assets/icons/tasks.svg', width: 30),
+                : SvgPicture.asset('assets/icons/tasks.svg', width: 30),
             label: "Tasks",
           ),
           BottomNavigationBarItem(
             icon: bottomMenuIndex == 1
                 ? SvgPicture.asset(
-                    'lib/assets/icons/pomodoro-selected.svg',
+                    'assets/icons/pomodoro-selected.svg',
                     width: 30,
                   )
-                : SvgPicture.asset('lib/assets/icons/pomodoro.svg', width: 30),
+                : SvgPicture.asset('assets/icons/pomodoro.svg', width: 30),
             label: "PomodoroTimer",
           ),
         ],
